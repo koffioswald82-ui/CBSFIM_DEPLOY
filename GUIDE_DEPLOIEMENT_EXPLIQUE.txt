@@ -1,0 +1,272 @@
+===============================================================
+  CBSFIM - COMMENT LE DOSSIER DEPLOY A ETE CREE
+  Explication simple de chaque decision technique
+  Redige par : Oswald Jaures KOFFI
+===============================================================
+
+
+===============================================================
+  LE PROBLEME DE DEPART
+===============================================================
+
+On avait un projet qui fonctionnait parfaitement sur l'ordinateur.
+Mais pour le montrer a des recruteurs, il fallait le mettre en ligne.
+
+Deux obstacles :
+
+  OBSTACLE 1 - Les donnees etaient trop grosses
+  Le projet original contient 200 000 clients et 2 millions de
+  transactions. Ces fichiers pesaient plusieurs centaines de MB.
+  GitHub refuse les fichiers de plus de 100 MB.
+  Solution : on a cree une version reduite avec 50 000 clients.
+
+  OBSTACLE 2 - On ne voulait pas toucher au projet original
+  Si on modifie les fichiers du projet principal, on risque de
+  tout casser. Et les donnees locales (200k clients) doivent
+  rester sur l'ordinateur.
+  Solution : creer un dossier SEPARE appele CBSFIM_DEPLOY.
+
+
+===============================================================
+  POURQUOI UN DOSSIER SEPARE (CBSFIM_DEPLOY) ?
+===============================================================
+
+Imagine que tu as un livre original rare et precieux.
+Pour en donner une copie a quelqu'un, tu ne decoupe pas le livre.
+Tu fais une photocopie.
+
+C'est exactement ce qu'on a fait :
+  - CBSFIM\          = le livre original (200k clients, intact)
+  - CBSFIM_DEPLOY\   = la photocopie (50k clients, pour GitHub)
+
+Les deux dossiers existent en meme temps sur l'ordinateur.
+Modifier l'un ne change rien a l'autre.
+
+
+===============================================================
+  CE QUI A ETE CHANGE DANS LA COPIE
+===============================================================
+
+1. LE NOMBRE DE CLIENTS : 200 000 -> 50 000
+   Fichier modifie : config/settings.py
+
+   Avant :
+     LITE_CUSTOMERS    = 200_000
+     LITE_TRANSACTIONS = 2_000_000
+
+   Apres :
+     LITE_CUSTOMERS    = 50_000
+     LITE_TRANSACTIONS = 500_000
+
+   Pourquoi ?
+   - 50 000 clients generent des fichiers de 20-50 MB (acceptable)
+   - 200 000 clients generent des fichiers de 200-500 MB (trop gros)
+   - Le dashboard a l'air identique pour un recruteur
+   - Les calculs et graphiques sont tout aussi representatifs
+
+2. LE FICHIER requirements.txt
+   Ce fichier dit a Streamlit Cloud : "installe ces bibliotheques
+   Python avant de lancer l'application".
+
+   On a retire pyspark de la liste.
+   Pourquoi ? PySpark necessite Java installe sur la machine.
+   Streamlit Cloud n'a pas Java. Sans Java, pyspark plante.
+   Et on n'a pas besoin de pyspark : le mode LITE utilise pandas.
+
+   Bibliotheques gardees :
+     pandas      - manipulation des donnees (tableaux)
+     numpy       - calculs mathematiques
+     scikit-learn- machine learning (KMeans, MinMaxScaler)
+     xgboost     - modeles de prediction (churn, revenu)
+     joblib      - sauvegarder et charger les modeles
+     streamlit   - le dashboard web
+     plotly      - les graphiques interactifs
+     pyarrow     - lire et ecrire les fichiers parquet
+     matplotlib  - necessaire pour les couleurs dans les tableaux
+     tqdm        - barre de progression pendant les calculs
+
+3. LE FICHIER .gitignore
+   Ce fichier dit a Git : "n'envoie PAS ces fichiers sur GitHub".
+
+   On a exclut :
+     - __pycache__/ et *.pyc  : fichiers temporaires Python inutiles
+     - Les modeles ML (*.pkl, *.joblib) : trop lourds, pas necessaires
+     - Les parquet bruts de transactions : trop lourds (500k lignes)
+
+   On a garde (envoye sur GitHub) :
+     - Tout le code Python
+     - Les fichiers parquet des resultats (recommendations, BI outputs)
+     - Les fichiers JSON (kpi_report, business_metrics)
+     - Le README.md
+
+
+===============================================================
+  POURQUOI STREAMLIT COMMUNITY CLOUD ET PAS VERCEL ?
+===============================================================
+
+Il existe plusieurs plateformes pour mettre un site en ligne.
+Chacune est specialisee dans un type d'application.
+
+  VERCEL          : specialise JavaScript/React (frontend web)
+  HEROKU          : polyvalent mais payant
+  RENDER          : polyvalent, gratuit avec limitations
+  STREAMLIT CLOUD : specialise Python + Streamlit (notre cas)
+
+Streamlit Cloud est fait exactement pour ce type de projet :
+  - Gratuit
+  - Supporte Python nativement
+  - Lit directement depuis GitHub
+  - Se redeploy automatiquement quand on pousse du code
+  - Pas besoin de configurer un serveur
+
+
+===============================================================
+  COMMENT GITHUB FONCTIONNE DANS CE PROCESSUS
+===============================================================
+
+GitHub est comme un Google Drive pour le code.
+Mais avec une fonctionnalite importante : l'historique des versions.
+
+SANS GITHUB :
+  Ton code est sur ton PC. Si le PC tombe en panne : perdu.
+  Personne ne peut y acceder sauf toi.
+
+AVEC GITHUB :
+  Ton code est sur ton PC ET sur les serveurs de GitHub.
+  Streamlit Cloud peut aller lire ce code et lancer l'application.
+  Les recruteurs voient l'application en ligne.
+
+LES COMMANDES GIT UTILISEES ET LEUR SIGNIFICATION :
+
+  git init
+  - "Commence a surveiller ce dossier avec Git"
+  - Cree un dossier cache .git qui enregistre toutes les modifications
+
+  git add .
+  - "Prepare tous les fichiers pour etre envoyes"
+  - Le point "." signifie "tous les fichiers"
+
+  git commit -m "message"
+  - "Prends une photo de l'etat actuel du code"
+  - Le message explique ce qui a change
+  - C'est comme sauvegarder un document Word avec un nom precis
+
+  git remote add origin URL
+  - "Dis a Git ou est le depot GitHub"
+  - L'URL pointe vers ton compte GitHub
+
+  git branch -M main
+  - "Appelle la branche principale 'main'"
+  - Une branche = une version du code (comme une copie)
+
+  git push -u origin main
+  - "Envoie le code sur GitHub"
+  - Push = pousser le code depuis ton PC vers GitHub
+
+
+===============================================================
+  COMMENT STREAMLIT CLOUD LIT TON APPLICATION
+===============================================================
+
+Quand tu cliques "Deploy" sur Streamlit Cloud, voici ce qui se passe :
+
+  ETAPE 1 : Streamlit copie ton code depuis GitHub sur ses serveurs
+  ETAPE 2 : Il lit requirements.txt et installe toutes les bibliotheques
+  ETAPE 3 : Il lance la commande : streamlit run dashboard/app.py
+  ETAPE 4 : L'application est accessible via une URL publique
+  ETAPE 5 : A chaque nouveau "git push", Streamlit se met a jour
+
+C'est exactement comme si quelqu'un prenait ton ordinateur,
+installait les memes logiciels, et lancait le dashboard.
+Sauf que c'est un serveur dans le cloud qui fait ca.
+
+
+===============================================================
+  POURQUOI LES DONNEES SONT DANS GITHUB ET PAS GENEREES AU DEMARRAGE
+===============================================================
+
+On avait deux options pour les donnees :
+
+  OPTION A : Generer les donnees a chaque demarrage de l'app
+  Avantage  : repo GitHub tres leger (pas de fichiers parquet)
+  Inconvenient : l'app met 5-10 minutes a demarrer la premiere fois.
+  Un recruteur qui attend 10 minutes va fermer l'onglet.
+
+  OPTION B : Pre-generer les donnees et les mettre dans GitHub
+  Avantage  : l'app demarre en 30 secondes
+  Inconvenient : le repo GitHub est plus lourd (50-100 MB)
+  On a choisi cette option pour l'experience utilisateur.
+
+Les donnees sont generees une seule fois en local avec ces deux commandes :
+  python pipelines/run_pipeline.py
+  python pipelines/run_bi_pipeline.py
+
+Ensuite les fichiers resultats sont commites dans GitHub avec git add.
+Streamlit lit ces fichiers directement sans avoir besoin de les regenerer.
+
+
+===============================================================
+  STRUCTURE FINALE DU DOSSIER CBSFIM_DEPLOY
+===============================================================
+
+CBSFIM_DEPLOY\
+  config\
+    settings.py          <- parametres (50k clients pour la demo)
+  src\
+    bi\                  <- feature engineering, KPIs, exports
+    engine\              <- moteur de recommandations
+    metrics\             <- calcul des metriques business
+    ml\                  <- modeles XGBoost churn et revenu
+    simulation\          <- generation des clients et transactions
+  dashboard\
+    app.py               <- le dashboard Streamlit (7 onglets)
+  pipelines\
+    run_pipeline.py      <- pipeline ML principal
+    run_bi_pipeline.py   <- pipeline BI (features + KPIs)
+  data\
+    processed\
+      recommendations.parquet  <- resultats ML (50k clients)
+      business_metrics.json    <- metriques globales
+    bi\
+      tableau\
+        customer_table.parquet       <- tableau clients enrichi
+        financial_aggregates.parquet <- agregats financiers
+        time_series.parquet          <- serie temporelle 24 mois
+      kpis\
+        kpi_report.json              <- rapport KPI complet
+  requirements.txt       <- liste des bibliotheques Python
+  .gitignore             <- fichiers a ne pas envoyer sur GitHub
+  README.md              <- page d'accueil du repo GitHub
+
+
+===============================================================
+  ERREURS RENCONTREES ET SOLUTIONS
+===============================================================
+
+ERREUR 1 : ImportError matplotlib
+  Cause    : background_gradient() dans les tableaux Streamlit
+             necessite matplotlib mais il n'etait pas dans requirements.txt
+  Solution : ajouter "matplotlib>=3.8.0" dans requirements.txt
+
+ERREUR 2 : ModuleNotFoundError statsmodels
+  Cause    : trendline="lowess" dans un scatter plot Plotly
+             necessite statsmodels, une bibliotheque lourde non installee
+  Solution : retirer trendline="lowess" du scatter plot
+
+ERREUR 3 : SyntaxError unicode escape dans deploy_prep.py
+  Cause    : le chemin Windows "c:\Users\..." contient "\U"
+             que Python interprete comme un caractere Unicode
+  Solution : retirer le chemin complet du docstring du script
+
+CES ERREURS SONT NORMALES :
+  Un environnement local (ton PC) et un environnement cloud
+  ne sont jamais identiques a 100%.
+  On decouvre les differences en deployant et en lisant les logs.
+  C'est le processus normal de tout developpeur.
+
+
+===============================================================
+  Redige par Oswald Jaures KOFFI
+  Projet CBSFIM - Banking AI Platform
+  https://cbsfim-banking.streamlit.app
+===============================================================
