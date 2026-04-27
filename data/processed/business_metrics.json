@@ -1,0 +1,51 @@
+{
+  "n_customers": 50000,
+  "churn_rate": 0.3501,
+  "churn_rate_pct": 35.01,
+  "revenue_at_risk": "1888196.4",
+  "total_expected_loss": "731288.2",
+  "clv_at_risk": "1042656.2",
+  "high_value_at_risk": 86,
+  "total_revenue": "43110030.0",
+  "total_clv": "28916780.0",
+  "revenue_at_risk_pct": 4.38,
+  "action_distribution": {
+    "Monitor": 21721,
+    "Cross-Sell Opportunity": 12426,
+    "No Action": 8346,
+    "Retain - Standard Offer": 7421,
+    "Retain - Premium Offer": 86
+  },
+  "segment_breakdown": [
+    {
+      "segment": "high_net_worth",
+      "n_customers": 7429,
+      "avg_churn_prob": 0.009999999776482582,
+      "high_risk_count": 51,
+      "revenue_at_risk_seg": 190548.484375,
+      "avg_clv": 2894.56005859375,
+      "total_revenue_seg": 31702526.0,
+      "churn_rate_pct": 0.7
+    },
+    {
+      "segment": "premium",
+      "n_customers": 15181,
+      "avg_churn_prob": 0.029999999329447746,
+      "high_risk_count": 920,
+      "revenue_at_risk_seg": 448869.59375,
+      "avg_clv": 396.4599914550781,
+      "total_revenue_seg": 9060298.0,
+      "churn_rate_pct": 6.1
+    },
+    {
+      "segment": "retail",
+      "n_customers": 27390,
+      "avg_churn_prob": 0.14000000059604645,
+      "high_risk_count": 16536,
+      "revenue_at_risk_seg": 1248778.0,
+      "avg_clv": 50.90999984741211,
+      "total_revenue_seg": 2347209.25,
+      "churn_rate_pct": 60.4
+    }
+  ]
+}

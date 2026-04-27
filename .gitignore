@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+
+# Environnements virtuels
+.env
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Modèles ML (grands fichiers, pas nécessaires pour le dashboard)
+data/processed/*.pkl
+data/processed/*.joblib
+
+# Parquet bruts (conservés seulement les outputs BI et recommendations)
+data/parquet/transactions/
+data/parquet/customers/

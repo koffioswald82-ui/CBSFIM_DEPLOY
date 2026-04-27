@@ -1,0 +1,184 @@
+{
+  "metadata": {
+    "generated_at": "2026-04-27T21:24:25.902840",
+    "n_customers": 50000,
+    "observation_period": "Jan 2023 \u2013 Dec 2024",
+    "currency": "USD",
+    "margin_rate": 0.18,
+    "clv_discount_rate": 0.1,
+    "clv_horizon_years": 5
+  },
+  "summary": {
+    "total_revenue": 43110032.0,
+    "total_revenue_at_risk": 731286.9375,
+    "rar_pct": 1.7,
+    "churn_rate_pct": 35.01,
+    "total_clv": 28916780.0,
+    "total_net_profit": -6485715.12,
+    "critical_customers": 86
+  },
+  "kpis": {
+    "revenue_at_risk": {
+      "name": "Revenue at Risk",
+      "code": "RAR",
+      "formula": "SUM(predicted_revenue_annual \u00d7 churn_probability) \u2014 for every customer",
+      "business_definition": "Probability-weighted annual revenue expected to be lost if at-risk customers churn.  Unlike a simple binary high/low split, RAR uses each customer's individual churn probability to produce a statistically grounded loss estimate.",
+      "value": 731286.9375,
+      "value_formatted": "$731,287",
+      "as_pct_of_total_revenue": 1.7,
+      "by_segment": {
+        "high_net_worth": 188005.484375,
+        "premium": 239685.859375,
+        "retail": 303595.625
+      },
+      "by_region": {
+        "Central": 151488.375,
+        "East": 149526.203125,
+        "North": 141193.765625,
+        "South": 144372.96875,
+        "West": 144705.671875
+      },
+      "strategic_implication": "A RAR above 5 % of total revenue warrants a board-level retention programme.  Allocate intervention budget proportional to RAR by segment \u2014 never spend more than 30 % of a customer's CLV on a single retention offer."
+    },
+    "churn_rate": {
+      "name": "Churn Rate",
+      "code": "CR",
+      "formula": "COUNT(customers WHERE risk_level = 'High') / COUNT(all_customers) \u00d7 100",
+      "business_definition": "Percentage of the customer base classified as high churn risk by the XGBoost churn model.  In retail banking, sustainable churn rates are typically 8\u201312 %.  Above 20 % signals systemic service-quality or competitive-pricing failure.",
+      "value": 35.01,
+      "value_formatted": "35.0%",
+      "by_segment": {
+        "high_net_worth": 0.7,
+        "premium": 6.1,
+        "retail": 60.4
+      },
+      "expected_annual_loss_count": 4413,
+      "avg_churn_probability": 0.08829999715089798,
+      "strategic_implication": "Track monthly.  A rise of >2 pp per quarter calls for an immediate competitive and service-quality audit.  The retail segment typically drives aggregate churn \u2014 prioritise digital engagement programmes there first."
+    },
+    "customer_lifetime_value": {
+      "name": "Customer Lifetime Value",
+      "code": "CLV",
+      "formula": "predicted_revenue_annual \u00d7 0.18 \u00d7 (1 \u2212 churn_probability) \u00d7 \u03a3[1/(1+0.1)^t] for t = 1 \u2026 5",
+      "discount_factor": 3.7908,
+      "margin_rate": 0.18,
+      "horizon_years": 5,
+      "business_definition": "Net present value of the expected net cash flows from a customer over 5 years, discounted at 10 % and adjusted for the probability that the customer stays.  CLV sets the ceiling on economically rational retention spend.",
+      "total_clv": 28916780.0,
+      "total_clv_formatted": "$28,916,780",
+      "avg_clv": 578.3400268554688,
+      "median_clv": 86.0,
+      "p90_clv": 2514.36,
+      "clv_at_risk": 1042656.1875,
+      "by_segment": {
+        "mean": {
+          "high_net_worth": 2894.56005859375,
+          "premium": 396.4599914550781,
+          "retail": 50.90999984741211
+        },
+        "total": {
+          "high_net_worth": 21503668.0,
+          "premium": 6018670.5,
+          "retail": 1394442.875
+        },
+        "median": {
+          "high_net_worth": 2843.169921875,
+          "premium": 385.6000061035156,
+          "retail": 47.970001220703125
+        }
+      },
+      "strategic_implication": "Never invest more than CLV \u00d7 0.30 on a single retention intervention.  Use CLV tiers to stratify offer value: Elite (top 10 %) \u2192 premium concierge, Preferred \u2192 digital incentive, Standard \u2192 automated nudge."
+    },
+    "high_value_at_risk": {
+      "name": "High-Value Customers at Risk",
+      "code": "HVAR",
+      "formula": "COUNT(customers WHERE risk_level = 'High' AND financial_value = 'High')",
+      "business_definition": "Customers who simultaneously belong to the top revenue quartile AND carry high churn risk.  This is the highest-urgency cohort \u2014 their departure would cause disproportionate revenue destruction.",
+      "count": 86,
+      "revenue_at_stake": 220982.15625,
+      "clv_at_stake": 113139.796875,
+      "avg_churn_probability": 0.21480000019073486,
+      "pct_of_total_customers": 0.17,
+      "pct_of_total_revenue": 0.51,
+      "by_segment": {
+        "high_net_worth": 51,
+        "premium": 35
+      },
+      "strategic_implication": "Mandate personal outreach within 48 hours \u2014 not automated email. Assign a named relationship manager to each HVAR customer. Even retaining 50 % of this cohort preserves a disproportionate share of lifetime revenue."
+    },
+    "net_profit_per_segment": {
+      "name": "Net Profit per Segment",
+      "code": "NPS_SEG",
+      "formula": "SUM(estimated_margin_per_client \u2212 cost_to_serve)  grouped by segment",
+      "business_definition": "Segment-level net profitability after deducting the annual cost to serve each customer.  Reveals cross-subsidisation dynamics and where to focus operational efficiency programmes.",
+      "total_net_profit": -6485715.12,
+      "total_net_profit_formatted": "$-6,485,715",
+      "overall_profit_margin_pct": -15.04,
+      "by_segment": {
+        "total_net_profit": {
+          "high_net_worth": 1249054.83,
+          "premium": -3227066.2,
+          "retail": -4507703.75
+        },
+        "avg_net_profit": {
+          "high_net_worth": 168.13,
+          "premium": -212.57,
+          "retail": -164.57
+        },
+        "total_margin": {
+          "high_net_worth": 5706455.0,
+          "premium": 1630853.75,
+          "retail": 422496.25
+        },
+        "total_cost": {
+          "high_net_worth": 4457400.0,
+          "premium": 4857920.0,
+          "retail": 4930200.0
+        },
+        "n_customers": {
+          "high_net_worth": 7429,
+          "premium": 15181,
+          "retail": 27390
+        }
+      },
+      "strategic_implication": "If the retail segment delivers negative net profit, the bank must either increase fee income, digitise servicing (to lower cost-to-serve below $180), or selectively reprice the segment.  HNW profit subsidises the mass-market digital strategy \u2014 protect it."
+    },
+    "engagement_distribution": {
+      "name": "Engagement Score Distribution",
+      "code": "ESD",
+      "formula": "0.30 \u00d7 active_days_ratio + 0.30 \u00d7 norm(tx_count_90d) + 0.20 \u00d7 online_channel_ratio + 0.20 \u00d7 recency_score",
+      "business_definition": "Composite behavioural score [0, 1] measuring how actively a customer uses the bank's services.  Low engagement is the most reliable leading indicator of churn \u2014 typically 3-6 months before account closure.",
+      "avg_engagement": 0.3462,
+      "low_engagement_count": 4177,
+      "low_engagement_pct": 8.35,
+      "corr_with_churn_prob": -0.1657,
+      "by_segment": {
+        "high_net_worth": 0.3867,
+        "premium": 0.3604,
+        "retail": 0.3274
+      },
+      "strategic_implication": "Launch digital activation campaigns targeting engagement < 0.25. Goal: lift 20 % of low-engagement customers to medium tier within 6 months via push notifications, personalised offers, and onboarding nudges.  Track weekly \u2014 engagement is a leading KPI."
+    },
+    "revenue_concentration": {
+      "name": "Revenue Concentration Index",
+      "code": "RCI",
+      "formula": "SUM(revenue of top 10 % customers) / SUM(all revenue)",
+      "business_definition": "Share of total annual revenue generated by the highest-value 10 % of customers.  A Pareto-type measure of portfolio concentration risk.  Above 40 % indicates key-client dependency.",
+      "top_10pct_revenue_share": 56.42,
+      "top_10pct_revenue_amount": 24324706.0,
+      "top_20pct_revenue_share": 78.93,
+      "top_10pct_customer_count": 5000,
+      "strategic_implication": "If top 10 % generates >50 % of revenue, losing even 5 % of that cohort erodes the bottom line materially.  Mandate quarterly executive-level reviews for all customers in the top revenue decile regardless of their current churn risk classification."
+    },
+    "time_series": {
+      "latest_month": "2024-12",
+      "latest_monthly_revenue": 170445.07,
+      "revenue_trend_6m_slope": 13167.66,
+      "revenue_trend_direction": "GROWING",
+      "peak_revenue_month": "2023-01",
+      "peak_monthly_revenue": 198282.3,
+      "avg_monthly_revenue": 149683.33,
+      "avg_monthly_tx_volume": 20833.0
+    }
+  }
+}
