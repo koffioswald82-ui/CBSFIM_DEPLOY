@@ -741,7 +741,7 @@ def page_bi_insights(df: pd.DataFrame, kpi: dict):
         fig = px.scatter(
             sample, x="engagement_index", y="churn_probability",
             color="segment", color_discrete_map=SEG_COLORS,
-            opacity=0.45, trendline="lowess",
+            opacity=0.45,
             labels={"engagement_index": "Engagement Index [0–1]",
                     "churn_probability": "Churn Probability"},
         )
