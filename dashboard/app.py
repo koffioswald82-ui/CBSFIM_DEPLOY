@@ -1,7 +1,7 @@
 """
-CBSFIM — Customer Behavior & Strategic Financial Impact Modeling
+CBSFIM - Customer Behavior & Strategic Financial Impact Modeling
 ================================================================
-Fintech-grade executive dashboard — v2.0 (BI Layer integrated)
+Fintech-grade executive dashboard - v2.0 (BI Layer integrated)
 
 Run:  streamlit run dashboard/app.py
 """
@@ -166,7 +166,7 @@ def load_metrics() -> dict:
 
 def _fmt(v, prefix="", suffix="", decimals=0):
     if v is None:
-        return "—"
+        return "-"
     return f"{prefix}{v:,.{decimals}f}{suffix}"
 
 def _has_col(df: pd.DataFrame, col: str) -> bool:
@@ -235,7 +235,7 @@ def render_sidebar(df: pd.DataFrame) -> pd.DataFrame:
 
         st.divider()
         if bi_available:
-            st.markdown(f"<span style='color:{C['subtext']}; font-size:0.73rem;'>BI Layer active — {len(df):,} customers enriched</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:{C['subtext']}; font-size:0.73rem;'>BI Layer active - {len(df):,} customers enriched</span>", unsafe_allow_html=True)
         else:
             st.markdown(f"<span style='color:{C['warning']}; font-size:0.73rem;'>⚠ Run run_bi_pipeline.py to unlock all features</span>", unsafe_allow_html=True)
 
@@ -252,12 +252,12 @@ def render_sidebar(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — Executive Summary
+# TAB 1 - Executive Summary
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_executive_summary(df: pd.DataFrame, kpi: dict):
     st.markdown("<h2 style='margin-top:0;'>Executive Summary</h2>", unsafe_allow_html=True)
-    st.markdown(f"<span style='color:{C['subtext']};'>Strategic overview — {len(df):,} customers in view</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color:{C['subtext']};'>Strategic overview - {len(df):,} customers in view</span>", unsafe_allow_html=True)
     st.markdown("")
 
     # ── KPI cards ─────────────────────────────────────────────────────────────
@@ -344,7 +344,7 @@ def page_executive_summary(df: pd.DataFrame, kpi: dict):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — Customer Risk Explorer
+# TAB 2 - Customer Risk Explorer
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_customer_risk_explorer(df: pd.DataFrame):
@@ -369,9 +369,9 @@ def page_customer_risk_explorer(df: pd.DataFrame):
                 st.markdown(f"Age: {r['age']}")
                 st.markdown(f"Income: ${r['income']:,.0f}")
                 st.markdown(f"Balance: ${r['account_balance']:,.0f}")
-                st.markdown(f"Tenure: {r.get('tenure_months', r.get('customer_tenure_years', '—'))} {'months' if 'tenure_months' in r.index else 'years'}")
+                st.markdown(f"Tenure: {r.get('tenure_months', r.get('customer_tenure_years', '-'))} {'months' if 'tenure_months' in r.index else 'years'}")
                 if _has_col(df, "region"):
-                    st.markdown(f"Region: `{r.get('region', '—')}`")
+                    st.markdown(f"Region: `{r.get('region', '-')}`")
             with c2:
                 st.metric("Churn Probability", f"{r['churn_probability']:.1%}")
                 st.metric("Annual Revenue", f"${r['predicted_revenue_annual']:,.0f}")
@@ -389,7 +389,7 @@ def page_customer_risk_explorer(df: pd.DataFrame):
                 st.markdown(f"**Action:** `{r['recommended_action']}`")
                 st.markdown(f"**Priority:** `{r['priority_score']:.4f}`")
                 if _has_col(df, "value_tier"):
-                    st.markdown(f"**Value Tier:** `{r.get('value_tier', '—')}`")
+                    st.markdown(f"**Value Tier:** `{r.get('value_tier', '-')}`")
                 if _has_col(df, "inactivity_streak"):
                     st.markdown(f"**Inactivity Streak:** `{int(r.get('inactivity_streak', 0))} months`")
                 if _has_col(df, "days_since_last_transaction"):
@@ -456,7 +456,7 @@ def page_customer_risk_explorer(df: pd.DataFrame):
     st.dataframe(styled, use_container_width=True, hide_index=True)
 
     # Scatter: Value vs Risk
-    st.markdown("#### Value vs Risk — Scatter Plot")
+    st.markdown("#### Value vs Risk - Scatter Plot")
     sample = df.sample(min(8000, len(df)), random_state=42)
     x_col  = "churn_probability_pct" if _has_col(df, "churn_probability_pct") else "churn_probability"
     y_col  = "clv"
@@ -475,7 +475,7 @@ def page_customer_risk_explorer(df: pd.DataFrame):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — Financial Impact
+# TAB 3 - Financial Impact
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_financial_impact(df: pd.DataFrame, fa: pd.DataFrame | None):
@@ -485,7 +485,7 @@ def page_financial_impact(df: pd.DataFrame, fa: pd.DataFrame | None):
     if fa is not None:
         seg_reg = fa[fa["aggregation_level"] == "by_segment_region"].copy()
         if not seg_reg.empty and "segment" in seg_reg.columns and "region" in seg_reg.columns:
-            st.markdown("#### Profitability Heatmap — Segment × Region")
+            st.markdown("#### Profitability Heatmap - Segment × Region")
             pivot = (
                 seg_reg.pivot(index="segment", columns="region",
                               values="profitability_ratio")
@@ -527,7 +527,7 @@ def page_financial_impact(df: pd.DataFrame, fa: pd.DataFrame | None):
 
     # Net profit by segment (BI layer)
     if _has_col(df, "net_profit_per_client"):
-        st.markdown("#### Net Profit per Client — Distribution by Segment")
+        st.markdown("#### Net Profit per Client - Distribution by Segment")
         fig3 = px.box(df, x="segment", y="net_profit_per_client",
                       color="segment", color_discrete_map=SEG_COLORS,
                       labels={"net_profit_per_client": "Net Profit/client ($)", "segment": ""},
@@ -571,11 +571,11 @@ def page_financial_impact(df: pd.DataFrame, fa: pd.DataFrame | None):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — Revenue Trends  (NEW — time series)
+# TAB 4 - Revenue Trends  (NEW - time series)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_revenue_trends(ts: pd.DataFrame | None):
-    st.markdown("<h2 style='margin-top:0;'>Revenue Trends — 24-Month Evolution</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='margin-top:0;'>Revenue Trends - 24-Month Evolution</h2>", unsafe_allow_html=True)
 
     if ts is None:
         st.warning("Time series data not available. Run `python pipelines/run_bi_pipeline.py` first.")
@@ -699,11 +699,11 @@ def page_revenue_trends(ts: pd.DataFrame | None):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 5 — BI Insights  (NEW — engagement, clustering, ROI simulator)
+# TAB 5 - BI Insights  (NEW - engagement, clustering, ROI simulator)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_bi_insights(df: pd.DataFrame, kpi: dict):
-    st.markdown("<h2 style='margin-top:0;'>BI Insights — Behavioral & Profitability Analytics</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='margin-top:0;'>BI Insights - Behavioral & Profitability Analytics</h2>", unsafe_allow_html=True)
 
     bi_ready = _has_col(df, "engagement_index")
     if not bi_ready:
@@ -769,7 +769,7 @@ def page_bi_insights(df: pd.DataFrame, kpi: dict):
 
     # ── Inactivity streak analysis ────────────────────────────────────────────
     if _has_col(df, "inactivity_streak"):
-        st.markdown("#### Inactivity Streak — Leading Churn Indicator")
+        st.markdown("#### Inactivity Streak - Leading Churn Indicator")
         streak_agg = (
             df.groupby("inactivity_streak")
             .agg(n_customers=("customer_id", "count"),
@@ -872,7 +872,7 @@ def page_bi_insights(df: pd.DataFrame, kpi: dict):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 6 — AI Recommendations
+# TAB 6 - AI Recommendations
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_ai_recommendations(df: pd.DataFrame):
@@ -917,7 +917,7 @@ def page_ai_recommendations(df: pd.DataFrame):
         st.plotly_chart(fig2, use_container_width=True)
 
     # Top priority customers
-    st.markdown("#### Top Priority Customers — Immediate Action Required")
+    st.markdown("#### Top Priority Customers - Immediate Action Required")
 
     top_cols = ["customer_id", "segment", "churn_probability",
                 "predicted_revenue_annual", "clv", "risk_level",
@@ -954,7 +954,7 @@ def page_ai_recommendations(df: pd.DataFrame):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 7 — Model Info
+# TAB 7 - Model Info
 # ══════════════════════════════════════════════════════════════════════════════
 
 def page_model_info(df: pd.DataFrame, metrics: dict, kpi: dict):
@@ -1074,8 +1074,9 @@ def main():
     st.markdown(
         f"<div style='text-align:center; color:{C['subtext']}; font-size:0.73rem; "
         f"padding:20px 0 8px 0; border-top:1px solid {C['border']}; margin-top:24px;'>"
-        f"CBSFIM Platform &nbsp;·&nbsp; Big Data + AI + BI Decision System &nbsp;·&nbsp; "
-        f"Synthetic data — for demonstration only"
+        f"CBSFIM Platform - Big Data + AI + BI Decision System"
+        f"<br><span style='color:{C['text']}; font-weight:600;'>Realise par Oswald Jaures KOFFI</span>"
+        f"&nbsp;·&nbsp; Donnees synthetiques - a des fins de demonstration"
         f"</div>",
         unsafe_allow_html=True,
     )
